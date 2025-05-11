@@ -1,9 +1,6 @@
-# Blockpost TriggerBot
+## Установка и запуск
 
-Автоматический триггер-бот для Blockpost на Python
-
-## Установка
-1. Установите Python 3.7+
-2. Клонируйте репозиторий:
-   ```bash
-   git clone https://github.com/ваш-логин/blockpost-triggerbot.git
+1. Клонируйте репозиторий:
+```bash
+git clone https://github.com/ваш-логин/blockpost-triggerbot.git
+cd blockpost-triggerbot
