@@ -9,6 +9,7 @@ class TriggerBot:
         self.load_config()
         self.active = False
         self.target_color = None
+        self.last_shot_time = 0
         
     def load_config(self):
         with open('config.json') as f:
@@ -18,30 +19,33 @@ class TriggerBot:
             self.exit_key = config["exit_key"]
             self.offset = config["crosshair_offset"]
             self.shot_delay = config["shot_delay"]
+            self.cooldown = config["cooldown_ms"] / 1000
     
     def get_pixel_color(self, x, y):
         screenshot = ImageGrab.grab(bbox=(x, y, x+1, y+1))
         return screenshot.getpixel((0, 0))
     
     def run(self):
-        print(f"TriggerBot активируется по клавише: {self.trigger_key}")
-        print(f"Для выхода нажмите: {self.exit_key}")
+        print(f"TriggerBot | Активация: {self.trigger_key} | Выход: {self.exit_key}")
+        print("Бот будет стрелять ТОЛЬКО при зажатии клавиши и обнаружении цели")
         
         try:
             while True:
                 if keyboard.is_pressed(self.exit_key):
-                    print("Выход...")
+                    print("Завершение работы...")
                     break
                     
+                current_time = time.time()
+                
                 if keyboard.is_pressed(self.trigger_key):
                     if not self.active:
-                        # Активация при зажатии
+                        # Первичная активация
                         x, y = pyautogui.position()
                         x += self.offset
                         y += self.offset
                         self.target_color = self.get_pixel_color(x, y)
                         self.active = True
-                        print("Бот АКТИВИРОВАН | Следит за изменением цвета...")
+                        print("АКТИВИРОВАН | Слежение за целью...")
                     
                     # Проверка цвета
                     x, y = pyautogui.position()
@@ -50,20 +54,22 @@ class TriggerBot:
                     current_color = self.get_pixel_color(x, y)
                     
                     diff = sum(abs(c - t) for c, t in zip(current_color, self.target_color))
-                    if diff > self.threshold:
+                    
+                    if diff > self.threshold and current_time - self.last_shot_time > self.cooldown:
                         pyautogui.click(button='left')
-                        time.sleep(self.shot_delay)
+                        self.last_shot_time = current_time
+                        print("ВЫСТРЕЛ!")
                 else:
                     if self.active:
-                        # Деактивация при отпускании
+                        # Деактивация
                         self.active = False
-                        print("Бот ОСТАНОВЛЕН | Ожидание активации...")
-                    
-                time.sleep(0.01)
+                        print("ОСТАНОВЛЕН | Ожидание активации...")
+                
+                time.sleep(0.005)  # Ультра-быстрая проверка
                 
         except KeyboardInterrupt:
             print("\nРабота завершена")
 
 if __name__ == "__main__":
     bot = TriggerBot()
-    bot.run() 
+    bot.run()
