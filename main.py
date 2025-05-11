@@ -8,6 +8,7 @@ class TriggerBot:
     def __init__(self):
         self.load_config()
         self.active = False
+        self.was_active = False
         self.target_color = None
         self.last_shot_time = 0
         
@@ -25,9 +26,14 @@ class TriggerBot:
         screenshot = ImageGrab.grab(bbox=(x, y, x+1, y+1))
         return screenshot.getpixel((0, 0))
     
+    def double_click(self):
+        pyautogui.click(button='left')
+        time.sleep(0.05)
+        pyautogui.click(button='left')
+    
     def run(self):
         print(f"TriggerBot | Активация: {self.trigger_key} | Выход: {self.exit_key}")
-        print("Бот будет стрелять ТОЛЬКО при зажатии клавиши и обнаружении цели")
+        print("Двойной выстрел при отпускании клавиши")
         
         try:
             while True:
@@ -39,12 +45,13 @@ class TriggerBot:
                 
                 if keyboard.is_pressed(self.trigger_key):
                     if not self.active:
-                        # Первичная активация
+                        # Активация
                         x, y = pyautogui.position()
                         x += self.offset
                         y += self.offset
                         self.target_color = self.get_pixel_color(x, y)
                         self.active = True
+                        self.was_active = True
                         print("АКТИВИРОВАН | Слежение за целью...")
                     
                     # Проверка цвета
@@ -58,14 +65,15 @@ class TriggerBot:
                     if diff > self.threshold and current_time - self.last_shot_time > self.cooldown:
                         pyautogui.click(button='left')
                         self.last_shot_time = current_time
-                        print("ВЫСТРЕЛ!")
                 else:
-                    if self.active:
-                        # Деактивация
+                    if self.was_active:
+                        # Двойной выстрел при отпускании
+                        self.double_click()
                         self.active = False
-                        print("ОСТАНОВЛЕН | Ожидание активации...")
+                        self.was_active = False
+                        print("ДВОЙНОЙ ВЫСТРЕЛ | Остановка")
                 
-                time.sleep(0.005)  # Ультра-быстрая проверка
+                time.sleep(0.005)
                 
         except KeyboardInterrupt:
             print("\nРабота завершена")
