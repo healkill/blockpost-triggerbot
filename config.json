@@ -1,7 +1,8 @@
 {
-    "threshold": 20,
+    "threshold": 15,
     "trigger_key": "x",
     "exit_key": "end",
     "crosshair_offset": 2,
-    "shot_delay": 0.05
+    "shot_delay": 50,
+    "cooldown_ms": 100
 }
