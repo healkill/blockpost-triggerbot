@@ -24,8 +24,8 @@ class TriggerBot:
         return screenshot.getpixel((0, 0))
     
     def run(self):
-        print(f"TriggerBot запущен! Удерживайте {self.trigger_key} для активации")
-        print(f"Выход: {self.exit_key}")
+        print(f"TriggerBot активируется по клавише: {self.trigger_key}")
+        print(f"Для выхода нажмите: {self.exit_key}")
         
         try:
             while True:
@@ -35,13 +35,15 @@ class TriggerBot:
                     
                 if keyboard.is_pressed(self.trigger_key):
                     if not self.active:
+                        # Активация при зажатии
                         x, y = pyautogui.position()
                         x += self.offset
                         y += self.offset
                         self.target_color = self.get_pixel_color(x, y)
                         self.active = True
-                        print(f"Цель: {self.target_color} | Позиция: ({x}, {y})")
+                        print("Бот АКТИВИРОВАН | Следит за изменением цвета...")
                     
+                    # Проверка цвета
                     x, y = pyautogui.position()
                     x += self.offset
                     y += self.offset
@@ -52,7 +54,10 @@ class TriggerBot:
                         pyautogui.click(button='left')
                         time.sleep(self.shot_delay)
                 else:
-                    self.active = False
+                    if self.active:
+                        # Деактивация при отпускании
+                        self.active = False
+                        print("Бот ОСТАНОВЛЕН | Ожидание активации...")
                     
                 time.sleep(0.01)
                 
@@ -61,4 +66,4 @@ class TriggerBot:
 
 if __name__ == "__main__":
     bot = TriggerBot()
-    bot.run()
+    bot.run() 
